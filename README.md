@@ -4,12 +4,11 @@
 
 ## Tech Stack
 
-* [Express](https://github.com/expressjs/expressjs.com#expressjscom)
+* [Express](https://github.com/expressjs/expressjs.com)
 * [PostgreSQL](https://www.postgresql.org/about/)
-* [TypeORM] (hhttps://github.com/typeorm/typeorm)
-* [React](https://github.com/facebook/react#react-----)
+* [TypeORM](https://github.com/typeorm/typeorm)
+* [React](https://github.com/facebook/react)
 * [Redux](https://github.com/reduxjs/redux)
-* [MUI](https://github.com/mui-org/material-ui#mui)
-* [Express](https://github.com/expressjs/expressjs.com#expressjscom)
+* [MUI](https://github.com/mui-org/material-ui)
 * [PostgreSQL](https://www.postgresql.org/about/)
-* [Socket.IO](https://github.com/socketio/socket.io#socketio)
+* [Socket.IO](https://github.com/socketio/socket.io)
