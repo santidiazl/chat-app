@@ -1,6 +1,6 @@
 # Chat App
 
-1-1 Instant messaging application I'm working on, fully in TypeScript on both ends.
+Full-stack learning project that will be written entirely in TypeScript. The application will have an Express server and a PostgreSQL database interacted with via TypeORM. The chat interface will be React based and use Redux for state management.
 
 ## Tech Stack
 
