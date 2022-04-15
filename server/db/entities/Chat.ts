@@ -28,7 +28,7 @@ export default class Chat {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToMany(() => Participant)
+  @ManyToMany(() => Participant, (participant) => participant.chats)
   @JoinTable()
   participants!: Participant[];
 

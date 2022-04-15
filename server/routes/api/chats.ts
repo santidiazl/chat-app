@@ -1,12 +1,12 @@
 import { Router } from 'express';
 
-import { ChatRepo } from '../../db/repos';
+import { ChatRepo, ParticipantRepo } from '../../db/repos';
 
 const chatRouter = Router();
 
 chatRouter.get('/', async (req, res, next) => {
   // const userId = req.body.id;
-  const results = await ChatRepo.findAllUserChats(1);
+  const results = await ParticipantRepo.getUserChats(3);
   res.json({ results });
 });
 

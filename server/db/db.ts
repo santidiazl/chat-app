@@ -9,7 +9,7 @@ const db = new DataSource({
   host: 'localhost',
   port: 5432,
   username: 'postgres',
-  password: process.env.DATABASE_PASSWORD,
+  password: process.env.DATABASE_PASSWORD || '',
   database: 'chatapp',
   synchronize: true,
   entities: [Participant, Chat, Message],

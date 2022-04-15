@@ -23,7 +23,7 @@ export default class Message {
     }
     const { message, sender } = values;
     this.message = message;
-    this.sender = sender;
+    this.senderId = sender.id;
   }
   @PrimaryGeneratedColumn()
   id!: number;
@@ -33,6 +33,9 @@ export default class Message {
 
   @ManyToOne(() => Participant)
   sender!: Participant;
+
+  @Column()
+  senderId!: number;
 
   @Column({
     default: false,

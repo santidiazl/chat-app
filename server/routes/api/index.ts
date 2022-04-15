@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import chatRouter from './chat';
+import chatRouter from './chats';
 // import session from 'express-session';
 
 const apiRouter = Router();
