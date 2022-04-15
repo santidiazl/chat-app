@@ -21,24 +21,6 @@ const seed = async () => {
       'https://github.com/santidiazl/chat-app/raw/main/profile-images/luis.jpg',
   });
 
-  const josephLuisChat = new Chat({
-    participants: [joseph, luis],
-    messages: [
-      new Message({
-        sender: joseph,
-        message: "My main man Luis, how's it going bro?",
-      }),
-      new Message({
-        sender: luis,
-        message: 'Joseph! Long time no talk, doing well and you?',
-      }),
-      new Message({
-        sender: joseph,
-        message: "Good! I heard you're in NY, send some pics!",
-      }),
-    ],
-  });
-
   const ayo = new Participant({
     username: 'ayo',
     email: 'ayo@email.com',
@@ -47,39 +29,12 @@ const seed = async () => {
       'https://github.com/santidiazl/chat-app/raw/main/profile-images/ayo.jpg',
   });
 
-  const ayoChat = new Chat({
-    participants: [ayo, joseph],
-    messages: [
-      new Message({
-        sender: ayo,
-        message: 'What time are we meeting?',
-      }),
-    ],
-  });
-
   const melissa = new Participant({
     username: 'melissa',
     email: 'melissa@email.com',
     password: '123456',
     photoUrl:
       'https://github.com/santidiazl/chat-app/raw/main/profile-images/melissa.jpg',
-  });
-
-  const melissaChat = new Chat({
-    participants: [melissa, joseph],
-    messages: [
-      ...[...Array(15)].map(
-        () =>
-          new Message({
-            sender: melissa,
-            message: 'Hello!',
-          }),
-      ),
-      new Message({
-        sender: joseph,
-        message: "😂 😂 😂, you're wild!",
-      }),
-    ],
   });
 
   const zoe = new Participant({
@@ -108,6 +63,51 @@ const seed = async () => {
   });
 
   await ParticipantRepo.save([joseph, luis, ayo, melissa, zoe, aatik, charles]);
+
+  const josephLuisChat = new Chat({
+    participants: [joseph, luis],
+    messages: [
+      new Message({
+        sender: joseph,
+        message: "My main man Luis, how's it going bro?",
+      }),
+      new Message({
+        sender: luis,
+        message: 'Joseph! Long time no talk, doing well and you?',
+      }),
+      new Message({
+        sender: joseph,
+        message: "Good! I heard you're in NY, send some pics!",
+      }),
+    ],
+  });
+
+  const ayoChat = new Chat({
+    participants: [ayo, joseph],
+    messages: [
+      new Message({
+        sender: ayo,
+        message: 'What time are we meeting?',
+      }),
+    ],
+  });
+
+  const melissaChat = new Chat({
+    participants: [melissa, joseph],
+    messages: [
+      ...[...Array(15)].map(
+        () =>
+          new Message({
+            sender: melissa,
+            message: 'Hello!',
+          }),
+      ),
+      new Message({
+        sender: joseph,
+        message: "😂 😂 😂, you're wild!",
+      }),
+    ],
+  });
   await ChatRepo.save([josephLuisChat, melissaChat, ayoChat]);
 
   console.log('Succesfully seeded the DB.');

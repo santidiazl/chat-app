@@ -7,8 +7,11 @@ import {
   BeforeUpdate,
   UpdateDateColumn,
   CreateDateColumn,
+  ManyToMany,
 } from 'typeorm';
 import { IsEmail, Min } from 'class-validator';
+
+import Chat from './Chat';
 
 interface constructorParams {
   username: string;
@@ -55,25 +58,28 @@ export default class Participant {
   })
   salt!: string;
 
-  @CreateDateColumn()
+  @ManyToMany(() => Chat, (chat) => chat.participants)
+  chats!: Chat[];
+
+  @CreateDateColumn({ select: false })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updatedAt!: Date;
 
   /* Might be worth moving all this to a parent class */
   @BeforeInsert()
   @BeforeUpdate()
-  setSaltAndPassword() {
-    this.salt = this.createSalt();
-    this.password = this.encryptPassword(this.password, this.salt);
+  private setSaltAndPassword() {
+    this.salt = Participant.createSalt();
+    this.password = Participant.encryptPassword(this.password, this.salt);
   }
 
-  createSalt() {
+  private static createSalt() {
     return crypto.randomBytes(16).toString('base64');
   }
 
-  encryptPassword(unencrypted: string, salt: string) {
+  private static encryptPassword(unencrypted: string, salt: string) {
     return crypto
       .createHash('RSA-SHA256')
       .update(unencrypted)
@@ -82,6 +88,6 @@ export default class Participant {
   }
 
   correctPassword(password: string) {
-    return this.encryptPassword(password, this.salt) === this.password;
+    return Participant.encryptPassword(password, this.salt) === this.password;
   }
 }

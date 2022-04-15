@@ -7,15 +7,15 @@ import 'dotenv/config';
  */
 
 import app from '../app';
-import debug from 'debug';
 import http from 'http';
 import db from '../db/db';
+import debug from 'debug';
 
 /**
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
 /**
@@ -29,7 +29,6 @@ const server = http.createServer(app);
  */
 
 db.initialize().then(async () => {
-  await db.synchronize();
   server.listen(port);
   server.on('error', onError);
   server.on('listening', onListening);
@@ -88,5 +87,6 @@ function onError(error: NodeJS.ErrnoException) {
 function onListening() {
   const addr = server.address();
   const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr?.port;
+  console.log('Listening on', bind);
   debug('Listening on ' + bind);
 }

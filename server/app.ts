@@ -10,6 +10,8 @@ import createError from 'http-errors';
 import db from './db/db';
 import ParticipantRepo from './db/repos/participant.repository';
 import apiRouter from './routes/api';
+import signin from './routes/signin';
+import signup from './routes/signup';
 const { json, urlencoded } = express;
 
 const app = express();
@@ -19,6 +21,7 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(express.static(join(__dirname, 'public')));
 
+// TOKEN VERIFICATION
 // app.use((req, res, next) => {
 //   const token = req.headers['x-access-token'] as string;
 //   console.log('Token: ', token);
@@ -31,11 +34,11 @@ app.use(express.static(join(__dirname, 'public')));
 //           return next();
 //         }
 //         console.log('Decoded: ', decoded as jsw.JwtPayload);
-//         // const user = await ParticipantRepo.findOne({
-//         //   where: {
-//         //     id:
-//         //   },
-//         // });
+//         const user = await ParticipantRepo.findOne({
+//           where: {
+//             id:
+//           },
+//         });
 //       },
 //     );
 //   }
@@ -44,9 +47,11 @@ app.use(express.static(join(__dirname, 'public')));
 // });
 
 app.use('/api', apiRouter);
+app.use('/signin', signin);
+app.use('/signup', signup);
 
 app.use((req, res, next) => {
-  next(createError(404));
+  //  next(createError(404));
 });
 
 app.use(((err, req, res, next) => {
