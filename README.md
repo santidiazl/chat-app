@@ -1,6 +1,6 @@
 # Chat App (in progress)
 
-Full-stack learning project that will be written entirely in TypeScript. The application will have an Express server and a PostgreSQL database interacted with via TypeORM. The chat interface will be React based and use Redux for state management.
+Full-stack learning project that will be written entirely in TypeScript. The application will have an Express server and a PostgreSQL database interacted with via ~~TypeORM~~ Prisma. The chat interface will be React based and use Redux for state management.
 
 ## Completed user stories
 
@@ -11,7 +11,8 @@ Full-stack learning project that will be written entirely in TypeScript. The app
 
 * [Express](https://github.com/expressjs/expressjs.com)
 * [PostgreSQL](https://www.postgresql.org/about/)
-* [TypeORM](https://github.com/typeorm/typeorm)
+* ~~[TypeORM](https://github.com/typeorm/typeorm)~~
+* [Prisma](https://github.com/prisma/prisma)
 * [React](https://github.com/facebook/react)
 * [Redux](https://github.com/reduxjs/redux)
 * [MUI](https://github.com/mui-org/material-ui)
