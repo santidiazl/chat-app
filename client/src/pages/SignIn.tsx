@@ -1,21 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Grid, Box, Button, FormControl, TextField } from '@mui/material';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query';
 
-import { getUser } from './store/userReducer';
-import { RootState, AppDispatch } from './store';
-import { useSignInMutation } from './store/api';
-import { User } from './types';
+import { RootState } from '../store';
+import { useSignInMutation } from '../store/api';
 
-type Props = {
-  user: User;
-  getUser: (user: User) => void;
-};
-
-const Page = ({ user, getUser }: Props): JSX.Element => {
+const SignIn = (): JSX.Element => {
   const navigate = useNavigate();
-  const [signIn] = useSignInMutation();
+  const [signIn, { data, error }] = useSignInMutation();
+  let errorData: any = null;
+
+  if (error) {
+    errorData = (error as FetchBaseQueryError).data;
+  }
 
   const handleSignIn = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
@@ -23,39 +22,48 @@ const Page = ({ user, getUser }: Props): JSX.Element => {
     const username = form.username.value;
     const password = form.password.value;
 
-    const user = await signIn({ username, password }).unwrap();
-    localStorage.setItem('chat-token', user.token);
-    getUser(user);
+    await signIn({ username, password }).unwrap();
   };
 
-  if (user.id) {
-    navigate('/home');
+  if (data?.id) {
+    navigate('./home');
   }
 
   return (
-    <Grid container>
+    <Grid
+      container
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+      }}
+    >
       <Box>
         <Grid container item>
-          <Button onClick={() => navigate('/signup')}>Create an account</Button>
+          <Button onClick={() => navigate('/signup')}>Create account</Button>
         </Grid>
         <form onSubmit={handleSignIn}>
           <Grid>
             <Grid>
               <FormControl margin="normal" required>
                 <TextField
+                  error={Boolean(errorData?.username)}
                   aria-label="username"
                   label="Username"
                   name="username"
                   type="text"
+                  helperText={errorData?.username ? errorData?.error : ''}
                 />
               </FormControl>
             </Grid>
             <FormControl margin="normal" required>
               <TextField
-                label="password"
+                error={Boolean(errorData?.password)}
+                label="Password"
                 aria-label="password"
                 type="password"
                 name="password"
+                helperText={errorData?.password ? errorData?.error : ''}
               />
             </FormControl>
             <Grid>
@@ -69,21 +77,5 @@ const Page = ({ user, getUser }: Props): JSX.Element => {
     </Grid>
   );
 };
-
-const mapStateToProps = ({ user }: RootState) => {
-  return {
-    user,
-  };
-};
-
-const mapDispatchToProps = (dispatch: AppDispatch) => {
-  return {
-    getUser: (user: User) => {
-      dispatch(getUser(user));
-    },
-  };
-};
-
-const SignIn = connect(mapStateToProps, mapDispatchToProps)(Page);
 
 export default SignIn;

@@ -8,7 +8,6 @@ import 'dotenv/config';
 
 import app from '../app';
 import http from 'http';
-import db from '../db/db';
 import debug from 'debug';
 
 /**
@@ -28,11 +27,9 @@ const server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-db.initialize().then(async () => {
-  server.listen(port);
-  server.on('error', onError);
-  server.on('listening', onListening);
-});
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.

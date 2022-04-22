@@ -1,8 +1,10 @@
 import { AnyAction } from '@reduxjs/toolkit';
 import { ThunkAction } from '@reduxjs/toolkit';
 
-import { setFetchingStatus } from '../userReducer';
+import { userReceived } from '../user-slice';
 import { RootState } from '..';
+import { User } from '../../types';
+import socket from '../../socket';
 
 type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
@@ -11,10 +13,10 @@ type AppThunk<ReturnType = void> = ThunkAction<
   AnyAction
 >;
 
-export const fetchUser = (): AppThunk => async (dispatch) => {
-  dispatch(setFetchingStatus(true));
-  try {
-  } catch (err) {
-    console.error(err);
-  }
-};
+export const userOnline =
+  (user: User): AppThunk =>
+  async (dispatch) => {
+    localStorage.setItem('authorization', user.token || '');
+    dispatch(userReceived(user));
+    socket.emit('user-online', user.id);
+  };

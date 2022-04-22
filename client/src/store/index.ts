@@ -1,11 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import logger from 'redux-logger';
-
-import userReducer from './userReducer';
+import userSlice from './user-slice';
 import { chatApi } from './api';
 
 export const store = configureStore({
-  reducer: { user: userReducer, [chatApi.reducerPath]: chatApi.reducer },
+  reducer: { user: userSlice, [chatApi.reducerPath]: chatApi.reducer },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(chatApi.middleware, logger),
 });

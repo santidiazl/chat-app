@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import socket from './socket';
 import { useNavigate } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
   Grid,
   Box,
@@ -11,22 +10,17 @@ import {
   FormHelperText,
 } from '@mui/material';
 
-import { User } from './types';
-import { RootState, AppDispatch } from './store';
-import { useSignUpMutation } from './store/api';
-import { getUser } from './store/userReducer';
+import { User } from '../types';
+import { RootState } from '../store';
+import { useSignUpMutation } from '../store/api';
 
-type Props = {
-  user: User;
-  getUser: (user: User) => void;
-};
-
-const Page = ({ user, getUser }: Props) => {
+const SignUp = (): JSX.Element => {
+  const user: User = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
   const [signUp] = useSignUpMutation();
   const [mismatchError, setMismatchError] = useState(false);
 
-  const handleCreateAccount = async (evt: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
     const form = evt.target as HTMLFormElement;
     const username = form.username.value;
@@ -38,22 +32,27 @@ const Page = ({ user, getUser }: Props) => {
       setMismatchError(true);
     }
 
-    const user = await signUp({ username, password, email }).unwrap();
-    localStorage.setItem('chat-token', user.token);
-    getUser(user);
-    socket.emit('go-online', user.id);
+    await signUp({ username, password, email }).unwrap();
   };
 
   if (user.id) {
     navigate('/home');
   }
+
   return (
-    <Grid container>
+    <Grid
+      container
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+      }}
+    >
       <Box>
         <Grid container item>
           <Button onClick={() => navigate('/signin')}>Sign in instead</Button>
         </Grid>
-        <form onSubmit={handleCreateAccount}>
+        <form onSubmit={handleSignUp}>
           <Grid>
             <Grid>
               <FormControl>
@@ -107,7 +106,7 @@ const Page = ({ user, getUser }: Props) => {
               </FormControl>
             </Grid>
             <Button type="submit" variant="contained" size="large">
-              Create
+              Create account
             </Button>
           </Grid>
         </form>
@@ -115,21 +114,5 @@ const Page = ({ user, getUser }: Props) => {
     </Grid>
   );
 };
-
-const mapStateToProps = ({ user }: RootState) => {
-  return {
-    user,
-  };
-};
-
-const mapDispatchToProps = (dispatch: AppDispatch) => {
-  return {
-    getUser: (user: User) => {
-      dispatch(getUser(user));
-    },
-  };
-};
-
-const SignUp = connect(mapStateToProps, mapDispatchToProps)(Page);
 
 export default SignUp;

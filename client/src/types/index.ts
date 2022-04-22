@@ -2,10 +2,8 @@ export type User = {
   id: number;
   username: string;
   email: string;
-  photoUrl: string;
+  photoUrl: string | null;
   password: string;
-  salt: string;
-  createdAt: Date;
-  updatedAt: Date;
-  token: string;
+  salt: string | null;
+  token: string | null;
 };
