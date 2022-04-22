@@ -6,6 +6,7 @@ Full-stack learning project that will be written entirely in TypeScript. The app
 
 -   [x] User sees a signup page when navigating to /signup and is able to create a new account that is saved to database
 -   [x] User sees a sign in page when navigating to /signin and is able to sign in and navigate to home page when entering correct credentials
+-   [x] User can bypass signin page if previously signed in via JWT token authorization
 
 ## Tech Stack
 
