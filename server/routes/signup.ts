@@ -1,16 +1,17 @@
+import { PrismaClient } from '@prisma/client';
 import 'dotenv/config';
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
-import { userInfo } from 'os';
+import * as jose from 'jose';
 
-import Participant from '../db/entities/Participant';
-import ParticipantRepo from '../db/repos/participant.repository';
+import { setSaltAndPassword } from '../prisma/middleware/user';
 
-const signup = Router();
+const prisma = new PrismaClient();
+const signupRouter = Router();
 const sessSecret = process.env.SESSION_SECRET || '';
 
-signup.post('/', async (req, res, next) => {
-  console.log('create account endpoint');
+prisma.$use(setSaltAndPassword);
+
+signupRouter.post('/', async (req, res, next) => {
   try {
     const { username, password, email } = req.body;
 
@@ -26,19 +27,21 @@ signup.post('/', async (req, res, next) => {
       });
     }
 
-    const user = await ParticipantRepo.save(
-      new Participant({ username, password, email }),
-    );
-    // const token = jwt.sign({ id: user.id }, sessSecret, {
-    //   expiresIn: 86400,
-    // });
+    const user = await prisma.user.create({
+      data: {
+        username,
+        password,
+        email,
+      },
+    });
+
+    const token = await new jose.SignJWT({ id: user.id })
+      .setExpirationTime(86400)
+      .sign(Buffer.from(sessSecret));
 
     res.json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      password: user.password,
-      // token,
+      ...user,
+      token,
     });
   } catch (err) {
     console.error(err);
@@ -46,4 +49,4 @@ signup.post('/', async (req, res, next) => {
   }
 });
 
-export default signup;
+export default signupRouter;

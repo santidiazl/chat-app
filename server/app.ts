@@ -1,19 +1,19 @@
-import 'reflect-metadata';
 import 'dotenv/config';
-import express, { ErrorRequestHandler } from 'express';
+import express, { ErrorRequestHandler, json, urlencoded } from 'express';
 import { join } from 'path';
 import logger from 'morgan';
-import jsw from 'jsonwebtoken';
 import session from 'express-session';
 import createError from 'http-errors';
+import * as jose from 'jose';
 
-import db from './db/db';
-import ParticipantRepo from './db/repos/participant.repository';
 import apiRouter from './routes/api';
-import signin from './routes/signin';
-import signup from './routes/signup';
-const { json, urlencoded } = express;
+import signinRouter from './routes/signin';
+import signupRouter from './routes/signup';
+import authRouter from './routes/auth';
+import { PrismaClient, User } from '@prisma/client';
 
+const prisma = new PrismaClient();
+const sessSecret = process.env.SESSION_SECRET || '';
 const app = express();
 
 app.use(logger('dev'));
@@ -21,38 +21,52 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(express.static(join(__dirname, 'public')));
 
-// TOKEN VERIFICATION
-// app.use((req, res, next) => {
-//   const token = req.headers['x-access-token'] as string;
-//   console.log('Token: ', token);
-//   if (token) {
-//     jsw.verify(
-//       token,
-//       process.env.SESSION_SECRET || '',
-//       async (err, decoded) => {
-//         if (err) {
-//           return next();
-//         }
-//         console.log('Decoded: ', decoded as jsw.JwtPayload);
-//         const user = await ParticipantRepo.findOne({
-//           where: {
-//             id:
-//           },
-//         });
-//       },
-//     );
-//   }
+// Custom user property on Express request
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      user?: User;
+    }
+  }
+}
 
-//   return next();
-// });
+// CHECK FOR AUTH TOKEN
+app.use(async (req, res, next) => {
+  const token = req.headers?.authorization;
+  console.log('Checking auth token: ', token);
+  if (token) {
+    try {
+      const { payload } = await jose.jwtVerify(token, Buffer.from(sessSecret));
+      console.log('Payload: ', payload);
+      const user = await prisma.user.findUnique({
+        where: {
+          id: payload.id as number,
+        },
+      });
+      console.log('User found:', user);
+      if (user) {
+        req.user = user;
+      }
+    } catch (err: any) {
+      if (err?.code && err.code === 'ERR_JWT_EXPIRED') {
+        return next();
+      }
+      return next(err);
+    }
+  }
+
+  return next();
+});
 
 app.use('/api', apiRouter);
-app.use('/signin', signin);
-app.use('/signup', signup);
+app.use('/signin', signinRouter);
+app.use('/signup', signupRouter);
+app.use('/auth', authRouter);
 
-app.use((req, res, next) => {
-  //  next(createError(404));
-});
+// app.use((req, res, next) => {
+//   //  next(createError(404));
+// });
 
 app.use(((err, req, res, next) => {
   console.error(err);

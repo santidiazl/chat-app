@@ -1,17 +1,68 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { User } from '../types';
+import { ThunkDispatch, AnyAction } from '@reduxjs/toolkit';
 
-// Define a service using a base URL and expected endpoints
+import { User } from '../types';
+import { userOnline } from '../store/utils/thunkCreators';
+
+const dispatchUserOnline = async (
+  _: null | Partial<User>,
+  {
+    dispatch,
+    queryFulfilled,
+  }: {
+    dispatch: ThunkDispatch<any, any, AnyAction>;
+    queryFulfilled: any;
+  },
+) => {
+  try {
+    const { data } = await queryFulfilled;
+    console.log('Dispatching user: ', data);
+    dispatch(userOnline(data));
+  } catch (error) {}
+};
+
 export const chatApi = createApi({
   reducerPath: 'chatApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: '/',
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem('authorization') || null;
+      if (token) {
+        headers.set('authorization', token);
+      }
+      return headers;
+    },
+  }),
   endpoints: (build) => ({
+    fetchUser: build.query<User, null>({
+      query: () => ({
+        url: `/auth/user`,
+        method: 'GET',
+      }),
+      onQueryStarted: dispatchUserOnline,
+    }),
     signIn: build.mutation<User, Partial<User>>({
       query: (body) => ({
         url: `/signin`,
         method: 'POST',
         body,
       }),
+      onQueryStarted: async (
+        _: null | Partial<User>,
+        {
+          dispatch,
+          queryFulfilled,
+        }: {
+          dispatch: ThunkDispatch<any, any, AnyAction>;
+          queryFulfilled: any;
+        },
+      ) => {
+        try {
+          const { data } = await queryFulfilled;
+          console.log('Dispatching user: ', data);
+          dispatch(userOnline(data));
+        } catch (error) {}
+      },
     }),
     signUp: build.mutation<User, Partial<User>>({
       query: (body) => ({
@@ -19,10 +70,10 @@ export const chatApi = createApi({
         method: 'POST',
         body,
       }),
+      onQueryStarted: dispatchUserOnline,
     }),
   }),
 });
 
-// Export hooks for usage in functional components, which are
-// auto-generated based on the defined endpoints
-export const { useSignInMutation, useSignUpMutation } = chatApi;
+export const { useSignInMutation, useSignUpMutation, useFetchUserQuery } =
+  chatApi;

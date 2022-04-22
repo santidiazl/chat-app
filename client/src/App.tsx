@@ -3,9 +3,9 @@ import { Provider } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter } from 'react-router-dom';
 
-import { theme } from './constants';
+import { theme } from './theme';
 import { store } from './store';
-import AppRoutes from './routes';
+import AppRoutes from './AppRoutes';
 
 const App = (): JSX.Element => (
   <Provider store={store}>

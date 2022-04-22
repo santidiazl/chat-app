@@ -1,15 +1,17 @@
 import 'dotenv/config';
+import { PrismaClient } from '@prisma/client';
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
-import { userInfo } from 'os';
+import * as jose from 'jose';
 
-import Participant from '../db/entities/Participant';
-import ParticipantRepo from '../db/repos/participant.repository';
+import { encryptPassword } from '../prisma/middleware/user';
 
-const signin = Router();
+const signinRouter = Router();
 const sessSecret = process.env.SESSION_SECRET || '';
 
-signin.post('/', async (req, res, next) => {
+const prisma = new PrismaClient();
+
+signinRouter.post('/', async (req, res, next) => {
+  console.log('Sign in endpoint');
   try {
     const { username, password } = req.body;
 
@@ -19,7 +21,7 @@ signin.post('/', async (req, res, next) => {
       });
     }
 
-    const user = await ParticipantRepo.findOne({
+    const user = await prisma.user.findUnique({
       where: {
         username,
       },
@@ -28,32 +30,32 @@ signin.post('/', async (req, res, next) => {
     if (!user) {
       console.log({ error: 'Username not found.' });
       return res.status(401).json({
-        error: "Couldn't find your username.",
+        error: "Couldn't find your username",
+        username: true,
       });
     }
 
-    if (!user.correctPassword(password)) {
+    const isCorrectPassword =
+      encryptPassword(password, user.salt as string) === user.password;
+
+    if (!isCorrectPassword) {
       console.log({ error: 'Incorrect password.' });
       return res.status(401).json({
-        error:
-          'Wrong password. Try again or click Forgot password to reset it.',
+        error: 'Wrong password. Try again.',
+        password: true,
       });
     }
 
-    const { correctPassword, ...data } = user;
-
-    const token = jwt.sign(
-      {
-        id: user.id,
-      },
-      sessSecret,
-      { expiresIn: 86400 },
-    );
-
-    res.json({ ...data, token });
+    const token = await new jose.SignJWT({ id: user.id })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('2h')
+      .sign(Buffer.from(sessSecret));
+    console.log('SignIn endpoint, token: ', token);
+    res.json({ ...user, token });
   } catch (err) {
     next(err);
   }
 });
 
-export default signin;
+export default signinRouter;
